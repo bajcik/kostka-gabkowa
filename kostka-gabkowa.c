@@ -126,7 +126,7 @@ void siatka_drukuj(Siatka *s)
 	}
 
 	// rysuj
-	int dx[] = {6, 0, 6, 12, 6, 6};
+	int dx[] = {6, 6, 0, 12, 6, 6};
 	int dy[] = {0, 6, 6, 6, 12, 18};
 
 	for (int ns=0; ns<s->n; ns++)
@@ -157,7 +157,9 @@ void siatka_drukuj(Siatka *s)
 
 bool ok_krawedz(bool A[], bool B[])
 {
-	return A[0] == B[2] && A[1] == B[1] && A[2] == B[1];
+	return A[0] + B[2] == 1
+	    && A[1] + B[1] == 1
+		&& A[2] + B[0] == 1;
 }
 
 #define OKR(s1,k1,s2,k2) if (!ok_krawedz(s->s[s1].kr ## k1, s->s[s2].kr ## k2)) return false;
@@ -165,7 +167,9 @@ bool siatka_sprawdz(Siatka *s)
 {
 	if (s->n == 1) return true;
 
-	if (!ok_krawedz(s->s[0].krD, s->s[1].krG)) return false;
+	bool r = ok_krawedz(s->s[0].krD, s->s[1].krG);
+	if (!r) return false;
+	//if (!ok_krawedz(s->s[0].krD, s->s[1].krG)) return false;
 	
 	if (s->n == 2) return true;
 	
@@ -232,8 +236,8 @@ bool siatka_sprawdz(Siatka *s)
 // ssn: długość listy ścianek
 void zbadaj_poziom(Siatka *s, SSciana **ss, int ssn)
 {
-	s->n++; printf("%d", s->n);
-
+//	siatka_drukuj(s);
+//	printf("%d", s->n);
 	for (int is=0; is<ssn; is++)  // wszystkie ściany
 	{
 		// druga lista wskaźników ścian - bez is'owego
@@ -246,14 +250,16 @@ void zbadaj_poziom(Siatka *s, SSciana **ss, int ssn)
 		for (int io=0; io<8; io++) // wszystkie orientacje
 		{
 			sciana_nanies_surowa(&s->s[s->n], ss[is], io);
+			s->n++;
+			siatka_drukuj(s);
 			if (siatka_sprawdz(s))
 			{
 				if (s->n == 6) siatka_drukuj(s);
 				else           zbadaj_poziom(s, ss2, ssn-1);
 			}
+			s->n--;
 		}
 	}
-	s->n--;
 }
 
 
@@ -280,7 +286,7 @@ int main()
 #else
 #include <stdlib.h> // atoi()
 
-void test_wczytaj_orientuj_printuj(int oi)
+int test_wczytaj_orientuj_printuj(int oi)
 {
 	Siatka s;
 
@@ -294,13 +300,35 @@ void test_wczytaj_orientuj_printuj(int oi)
 	s.n = 6;
 
 	siatka_drukuj(&s);
+	return 0;
+}
+
+int test_proste_sprawdzenie()
+{
+	Siatka s;
+	SSciana surowa[6];
+
+	// wczytaj 
+	for (int i=0; i<6; i++)
+		ssciana_wczytaj(&surowa[i]);
+	
+	sciana_nanies_surowa(&s.s[0], &surowa[0], 0);
+	sciana_nanies_surowa(&s.s[1], &surowa[2], 1);
+	s.n = 2;
+
+	siatka_drukuj(&s);
+	bool ok = siatka_sprawdz(&s);
+
+	printf("rezultat: %d\n", ok);
+	return ok ? 0:-1;
 }
 
 int main(int argc, char **argv)
 {
 	switch (atoi(argv[1]))
 	{
-		case 0: test_wczytaj_orientuj_printuj(atoi(argv[2])); break;
+		case 0: return test_wczytaj_orientuj_printuj(atoi(argv[2]));
+		case 1: return test_proste_sprawdzenie();
 	}
 	return 0;
 }
