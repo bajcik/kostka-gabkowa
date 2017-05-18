@@ -44,9 +44,9 @@ void siatka_drukuj(Siatka *s)
 	// czyść
 	for (int y=0; y<23; y++)
 	{
-		ekran[y][17] = '\n';
-		for (int x=0; x<22; x++)
+		for (int x=0; x<18; x++)
 			ekran[y][x] = ' ';
+		ekran[y][17] = '\n';
 	}
 
 	// rysuj
@@ -169,17 +169,17 @@ void siatka_nanies_sciane(SSciana *ss, Sciana *s, int oi)
 	s->krG[1] = obwod[2];
 	s->krG[2] = obwod[3];
 	s->rPG = obwod2[4];
-	s->krG[0] = obwod[5];
-	s->krG[1] = obwod[6];
-	s->krG[2] = obwod[7];
+	s->krP[0] = obwod[5];
+	s->krP[1] = obwod[6];
+	s->krP[2] = obwod[7];
 	s->rPD = obwod2[8];
-	s->krG[0] = obwod[9];
-	s->krG[1] = obwod[10];
-	s->krG[2] = obwod[11];
+	s->krD[0] = obwod[9];
+	s->krD[1] = obwod[10];
+	s->krD[2] = obwod[11];
 	s->rLD = obwod2[12];
-	s->krG[0] = obwod[13];
-	s->krG[1] = obwod[14];
-	s->krG[2] = obwod[15];
+	s->krL[0] = obwod[13];
+	s->krL[1] = obwod[14];
+	s->krL[2] = obwod[15];
 }
 
 #ifndef TEST
@@ -191,6 +191,7 @@ int main()
 	// wczytaj 
 	for (int i=0; i<6; i++)
 		ssciana_wczytaj(&ss[i]);
+	s.n = 6;
 	
 	// kombinuj
 	siatka_nanies_sciane(&ss[0], &s.s[0], 0);
@@ -202,14 +203,18 @@ int main()
 
 void test_wczytaj_orientuj_printuj(int oi)
 {
+	Siatka s;
+
 	for (int i=0; i<6; i++)
 	{
-		Siatka s;
 		SSciana ss;
 		
 		ssciana_wczytaj(&ss);
 		siatka_nanies_sciane(&ss, &s.s[i], oi);
 	}
+	s.n = 6;
+
+	siatka_drukuj(&s);
 }
 
 int main(int argc, char **argv)
