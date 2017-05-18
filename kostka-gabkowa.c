@@ -11,15 +11,15 @@ typedef int bool;
 // ------------------------------------------------------ SSciana (sciana surowa) --
 /*
      +--+--+--+--+--+
-	 |  |  |  |  |  |
+     |  |  |  |  |  |
      +--+--+--+--+--+
-	 |  |  |  |  |  |
+     |  |  |  |  |  |
      +--+--+--+--+--+
-	 |  |  |  |  |  |
+     |  |  |  |  |  |
      +--+--+--+--+--+
-	 |  |  |  |  |  |
+     |  |  |  |  |  |
      +--+--+--+--+--+
-	 |  |  |  |  |  |
+     |  |  |  |  |  |
      +--+--+--+--+--+
 */
 typedef struct 
@@ -41,15 +41,15 @@ void ssciana_wczytaj(SSciana *ss)
 // ------------------------------------------------------ Sciana (sciana siatki) --
 /*
      +---+--------+---+
-	 |rLG|  >krG> |rPG|
+     |rLG|  >krG> |rPG|
      +---+--------+---+
-	 |   |        |   |
-	 | A |        | V |
-	 |krL|        |krP|
-	 | A |        | V |
-	 |   |        |   |
+     |   |        |   |
+     | A |        | V |
+     |krL|        |krP|
+     | A |        | V |
+     |   |        |   |
      +---+--------+---+
-	 |rLD|  <krD< |rPD|
+     |rLD|  <krD< |rPD|
      +---+--------+---+
 */
 typedef struct
@@ -163,7 +163,7 @@ bool ok_krawedz(bool A[], bool B[])
 {
 	return A[0] + B[2] == 1
 	    && A[1] + B[1] == 1
-		&& A[2] + B[0] == 1;
+	    && A[2] + B[0] == 1;
 }
 
 #define OKR(s1,k1,s2,k2) if (!ok_krawedz(s->s[s1].kr ## k1, s->s[s2].kr ## k2)) return false;
@@ -327,9 +327,9 @@ int test_proste_sprawdzenie()
 int main(int argc, char **argv)
 {
 	switch (atoi(argv[1]))
-	{
-		case 0: return test_wczytaj_orientuj_printuj(atoi(argv[2]));
-		case 1: return test_proste_sprawdzenie();
+	{                                                                // Np:
+		case 0: return test_wczytaj_orientuj_printuj(atoi(argv[2])); // ./test 0 0 < niebieskie
+		case 1: return test_proste_sprawdzenie();                    // ./test 1 < niebieskie
 	}
 	return 0;
 }
