@@ -5,6 +5,19 @@ typedef int bool;
 #define false 0
 
 // ------------------------------------------------------ SSciana (sciana surowa) --
+/*
+     +--+--+--+--+--+
+	 |  |  |  |  |  |
+     +--+--+--+--+--+
+	 |  |  |  |  |  |
+     +--+--+--+--+--+
+	 |  |  |  |  |  |
+     +--+--+--+--+--+
+	 |  |  |  |  |  |
+     +--+--+--+--+--+
+	 |  |  |  |  |  |
+     +--+--+--+--+--+
+*/
 typedef struct 
 {
 	bool pola[5][5];
@@ -22,13 +35,76 @@ void ssciana_wczytaj(SSciana *ss)
 }
 
 // ------------------------------------------------------ Sciana (sciana siatki) --
+/*
+     +---+--------+---+
+	 |rLG|  >krG> |rPG|
+     +---+--------+---+
+	 |   |        |   |
+	 | A |        | V |
+	 |krL|        |krP|
+	 | A |        | V |
+	 |   |        |   |
+     +---+--------+---+
+	 |rLD|  <krD< |rPD|
+     +---+--------+---+
+*/
 typedef struct
 {
-	bool krG[3], krD[3], krL[3], krP[3];
-	bool rLG, rPG, rLD, rPD;
+	bool krG[3], krD[3], krL[3], krP[3]; // krawędzie
+	bool rLG, rPG, rLD, rPD;             // rogi
 } Sciana;
 
+// o: 0..3 - obrót, 4..7 - obrót+inwersja
+void sciana_nanies_surowa(Sciana *s, SSciana *ss, int oi)
+{
+	// wyjmij sam obwód
+	bool obwod[16]; int n=0;
+	for (int i=0; i<4; i++) obwod[n++] = ss->pola[0][i];
+	for (int i=0; i<4; i++) obwod[n++] = ss->pola[i][4];
+	for (int i=0; i<4; i++) obwod[n++] = ss->pola[4][4-i];
+	for (int i=0; i<4; i++) obwod[n++] = ss->pola[4-i][0];
+
+	// uwzględnij orientację (obrót+lustro)
+	bool o2 = oi, prosto = true;
+	if (o2 >= 4) { o2 -= 4; prosto = false; }
+	
+	bool obwod2[16];
+	for (int i=0; i<16; i++)
+		obwod2[i] = prosto ? obwod[(    i +o2*4) % 16]
+		                   : obwod[((16-i)+o2*4) % 16];
+
+	// wstaw zorinetowany obwód do ss
+	s->rLG = obwod2[0];
+	s->krG[0] = obwod2[1];
+	s->krG[1] = obwod2[2];
+	s->krG[2] = obwod2[3];
+	s->rPG = obwod2[4];
+	s->krP[0] = obwod2[5];
+	s->krP[1] = obwod2[6];
+	s->krP[2] = obwod2[7];
+	s->rPD = obwod2[8];
+	s->krD[0] = obwod2[9];
+	s->krD[1] = obwod2[10];
+	s->krD[2] = obwod2[11];
+	s->rLD = obwod2[12];
+	s->krL[0] = obwod2[13];
+	s->krL[1] = obwod2[14];
+	s->krL[2] = obwod2[15];
+}
+
 // ------------------------------------------------------ Siatka (sciana siatki) --
+/*
+       +---+ 
+       | 0 |
+   +---+---+---+
+   | 2 | 1 | 3 |
+   +---+---+---+
+       | 4 |
+       +---+ 
+       | 5 |
+       +---+ 
+*/
+
 typedef struct
 {
 	int n; // ile scian wklejonych
@@ -87,34 +163,36 @@ bool ok_krawedz(bool A[], bool B[])
 #define OKR(s1,k1,s2,k2) if (!ok_krawedz(s->s[s1].kr ## k1, s->s[s2].kr ## k2)) return false;
 bool siatka_sprawdz(Siatka *s)
 {
-	if (!ok_krawedz(s->s[0].krL, s->s[1].krG)) return false;
+	if (s->n == 1) return true;
+
+	if (!ok_krawedz(s->s[0].krD, s->s[1].krG)) return false;
 	
 	if (s->n == 2) return true;
 	
-	if (!ok_krawedz(s->s[0].krD, s->s[2].krG)) return false;
-	if (!ok_krawedz(s->s[1].krP, s->s[2].krL)) return false;
+	if (!ok_krawedz(s->s[0].krL, s->s[2].krG)) return false;
+	if (!ok_krawedz(s->s[1].krL, s->s[2].krP)) return false;
 
 	if (s->s[0].rLD
-	  + s->s[1].rPG
-	  + s->s[2].rLG != 1) return false;
+	  + s->s[1].rLG
+	  + s->s[2].rPG != 1) return false;
 	
 	if (s->n == 3) return true;
 	
-	if (!ok_krawedz(s->s[2].krP, s->s[3].krL)) return false;
 	if (!ok_krawedz(s->s[0].krP, s->s[3].krG)) return false;
+	if (!ok_krawedz(s->s[1].krP, s->s[3].krL)) return false;
 	
 	if (s->s[0].rPD
-	  + s->s[2].rPG
+	  + s->s[1].rPG
 	  + s->s[3].rLG != 1) return false;
 	
 	if (s->n == 4) return true;
 
-	if (!ok_krawedz(s->s[1].krD, s->s[4].krL)) return false;
-	if (!ok_krawedz(s->s[2].krD, s->s[4].krG)) return false;
+	if (!ok_krawedz(s->s[1].krD, s->s[4].krG)) return false;
+	if (!ok_krawedz(s->s[2].krD, s->s[4].krL)) return false;
 	if (!ok_krawedz(s->s[3].krD, s->s[4].krP)) return false;
 	
-	if (s->s[1].rPD
-	  + s->s[2].rLD
+	if (s->s[1].rLD
+	  + s->s[2].rPD
 	  + s->s[4].rLG != 1) return false;
 	
 	if (s->s[2].rPD
@@ -123,12 +201,12 @@ bool siatka_sprawdz(Siatka *s)
 	
 	if (s->n == 5) return true;
 
-	if (!ok_krawedz(s->s[1].krL, s->s[5].krL)) return false;
+	if (!ok_krawedz(s->s[2].krL, s->s[5].krL)) return false;
 	if (!ok_krawedz(s->s[4].krD, s->s[5].krG)) return false;
 	if (!ok_krawedz(s->s[3].krP, s->s[5].krP)) return false;
 	if (!ok_krawedz(s->s[0].krG, s->s[5].krD)) return false;
 	
-	if (s->s[1].rLD
+	if (s->s[2].rLD
 	  + s->s[4].rLD
 	  + s->s[5].rLG != 1) return false;
 	
@@ -137,7 +215,7 @@ bool siatka_sprawdz(Siatka *s)
 	  + s->s[5].rPG != 1) return false;
 	
 	if (s->s[0].rLG
-	  + s->s[1].rLG
+	  + s->s[2].rLG
 	  + s->s[5].rLD != 1) return false;
 	
 	if (s->s[0].rPG
@@ -148,59 +226,54 @@ bool siatka_sprawdz(Siatka *s)
 }
 
 
-// o: 0..3 - obrót, 4..7 - obrót+inwersja
-void siatka_nanies_sciane(SSciana *ss, Sciana *s, int oi)
+// --------------------------------------------------------------------------------
+//   s: siatka
+//  ss: lista wskaźników surowych ścianek do wykorzystania
+// ssn: długość listy ścianek
+void zbadaj_poziom(Siatka *s, SSciana **ss, int ssn)
 {
-	// wyjmij sam obwód
-	bool obwod[16]; int n=0;
-	for (int i=0; i<4; i++) obwod[n++] = ss->pola[0][i];
-	for (int i=0; i<4; i++) obwod[n++] = ss->pola[i][4];
-	for (int i=0; i<4; i++) obwod[n++] = ss->pola[4][4-i];
-	for (int i=0; i<4; i++) obwod[n++] = ss->pola[4-i][0];
+	s->n++; printf("%d", s->n);
 
-	// uwzględnij orientację (obrót+lustro)
-	bool o2 = oi, prosto = true;
-	if (o2 >= 4) { o2 -= 4; prosto = false; }
-	
-	bool obwod2[16];
-	for (int i=0; i<16; i++)
-		obwod2[i] = prosto ? obwod[(    i +o2*4) % 16]
-		                   : obwod[((16-i)+o2*4) % 16];
+	for (int is=0; is<ssn; is++)  // wszystkie ściany
+	{
+		// druga lista wskaźników ścian - bez is'owego
+		SSciana *ss2[6];
+		int ssn2 = 0;
+		for (int i=0; i<ssn; i++)
+			if (i != is)
+				ss2[ssn2++] = ss[i];
 
-	// wstaw zorinetowany obwód do ss
-	s->rLG = obwod2[0];
-	s->krG[0] = obwod2[1];
-	s->krG[1] = obwod2[2];
-	s->krG[2] = obwod2[3];
-	s->rPG = obwod2[4];
-	s->krP[0] = obwod2[5];
-	s->krP[1] = obwod2[6];
-	s->krP[2] = obwod2[7];
-	s->rPD = obwod2[8];
-	s->krD[0] = obwod2[9];
-	s->krD[1] = obwod2[10];
-	s->krD[2] = obwod2[11];
-	s->rLD = obwod2[12];
-	s->krL[0] = obwod2[13];
-	s->krL[1] = obwod2[14];
-	s->krL[2] = obwod2[15];
+		for (int io=0; io<8; io++) // wszystkie orientacje
+		{
+			sciana_nanies_surowa(&s->s[s->n], ss[is], io);
+			if (siatka_sprawdz(s))
+			{
+				if (s->n == 6) siatka_drukuj(s);
+				else           zbadaj_poziom(s, ss2, ssn-1);
+			}
+		}
+	}
+	s->n--;
 }
 
-// ------------------------------------------------------ main() ------------------
 
 #ifndef TEST
 int main()
 {
 	Siatka s;
-	SSciana ss[6];
+	SSciana surowa[6];
 
 	// wczytaj 
 	for (int i=0; i<6; i++)
-		ssciana_wczytaj(&ss[i]);
-	s.n = 6;
+		ssciana_wczytaj(&surowa[i]);
 	
+	// pierwsza na stałe
+	sciana_nanies_surowa(&s.s[0], &surowa[0], 0);
+	s.n = 1;
+
 	// kombinuj
-	siatka_nanies_sciane(&ss[0], &s.s[0], 0);
+	SSciana *ss[5] = {&surowa[1], &surowa[2], &surowa[3], &surowa[4], &surowa[5]};
+	zbadaj_poziom(&s, ss, 5);
 }
 
 
@@ -216,7 +289,7 @@ void test_wczytaj_orientuj_printuj(int oi)
 		SSciana ss;
 		
 		ssciana_wczytaj(&ss);
-		siatka_nanies_sciane(&ss, &s.s[i], oi);
+		sciana_nanies_surowa(&s.s[i], &ss, oi);
 	}
 	s.n = 6;
 
