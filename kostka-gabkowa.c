@@ -55,7 +55,7 @@ void siatka_drukuj(Siatka *s)
 
 	for (int ns=0; ns<s->n; ns++)
 	{
-#		define PIX(y,x,v) ekran[dy[ns] + y][dx[ns] + x] = v?'@':'.'
+#		define PIX(y,x,v) ekran[dy[ns] + y][dx[ns] + x] = v ? '@':'.'
 		
 		PIX(0, 0, s->s[ns].rLG);
 		PIX(0, 4, s->s[ns].rPG);
@@ -64,11 +64,15 @@ void siatka_drukuj(Siatka *s)
 
 		for (int i=0; i<3; i++)
 		{
-			PIX(0, 1+i, s->s[ns].krG);
-			PIX(4, 1+i, s->s[ns].krD);
-			PIX(1+i, 0, s->s[ns].krL);
-			PIX(1+i, 4, s->s[ns].krP);
+			PIX(0, 1+i, s->s[ns].krG[i]);
+			PIX(4, 3-i, s->s[ns].krD[i]);
+			PIX(3-i, 0, s->s[ns].krL[i]);
+			PIX(1+i, 4, s->s[ns].krP[i]);
 		}
+
+		for (int i=1; i<=3; i++)
+			for (int j=1; j<=3; j++)
+				PIX(i, j, true);
 	}
 	
 	// wyświetl
@@ -156,31 +160,33 @@ void siatka_nanies_sciane(SSciana *ss, Sciana *s, int oi)
 
 	// uwzględnij orientację (obrót+lustro)
 	bool o2 = oi, prosto = true;
-	if (o2 > 3) { o2 -=4; prosto = false; }
+	if (o2 >= 4) { o2 -= 4; prosto = false; }
 	
 	bool obwod2[16];
 	for (int i=0; i<16; i++)
-		obwod2[i] = prosto ? obwod[(    i +o2*5) % 16]
-		                   : obwod[((16-i)+o2*5) % 16];
+		obwod2[i] = prosto ? obwod[(    i +o2*4) % 16]
+		                   : obwod[((16-i)+o2*4) % 16];
 
 	// wstaw zorinetowany obwód do ss
 	s->rLG = obwod2[0];
-	s->krG[0] = obwod[1];
-	s->krG[1] = obwod[2];
-	s->krG[2] = obwod[3];
+	s->krG[0] = obwod2[1];
+	s->krG[1] = obwod2[2];
+	s->krG[2] = obwod2[3];
 	s->rPG = obwod2[4];
-	s->krP[0] = obwod[5];
-	s->krP[1] = obwod[6];
-	s->krP[2] = obwod[7];
+	s->krP[0] = obwod2[5];
+	s->krP[1] = obwod2[6];
+	s->krP[2] = obwod2[7];
 	s->rPD = obwod2[8];
-	s->krD[0] = obwod[9];
-	s->krD[1] = obwod[10];
-	s->krD[2] = obwod[11];
+	s->krD[0] = obwod2[9];
+	s->krD[1] = obwod2[10];
+	s->krD[2] = obwod2[11];
 	s->rLD = obwod2[12];
-	s->krL[0] = obwod[13];
-	s->krL[1] = obwod[14];
-	s->krL[2] = obwod[15];
+	s->krL[0] = obwod2[13];
+	s->krL[1] = obwod2[14];
+	s->krL[2] = obwod2[15];
 }
+
+// ------------------------------------------------------ main() ------------------
 
 #ifndef TEST
 int main()
