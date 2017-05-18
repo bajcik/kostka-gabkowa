@@ -1,3 +1,7 @@
+/* Krzysztof.Garus@gmail.com
+ * 2017.05.19
+*/
+
 #include <stdio.h>
 
 typedef int bool;
@@ -236,8 +240,6 @@ bool siatka_sprawdz(Siatka *s)
 // ssn: długość listy ścianek
 void zbadaj_poziom(Siatka *s, SSciana **ss, int ssn)
 {
-//	siatka_drukuj(s);
-//	printf("%d", s->n);
 	for (int is=0; is<ssn; is++)  // wszystkie ściany
 	{
 		// druga lista wskaźników ścian - bez is'owego
@@ -251,7 +253,6 @@ void zbadaj_poziom(Siatka *s, SSciana **ss, int ssn)
 		{
 			sciana_nanies_surowa(&s->s[s->n], ss[is], io);
 			s->n++;
-			siatka_drukuj(s);
 			if (siatka_sprawdz(s))
 			{
 				if (s->n == 6) siatka_drukuj(s);
