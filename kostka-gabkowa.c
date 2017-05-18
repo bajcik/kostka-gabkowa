@@ -4,17 +4,37 @@ typedef int bool;
 #define true 1
 #define false 0
 
+// ------------------------------------------------------ SSciana (sciana surowa) --
+typedef struct 
+{
+	bool pola[5][5];
+} SSciana;
+
+void ssciana_wczytaj(SSciana *ss)
+{
+	for (int y=0; y<5; y++)
+		for (int x=0; x<5; x++)
+		{
+			char ch;
+			do {ch = getchar();} while (ch != '.' || ch != '@');
+			ss->pola[y][x] = ch=='@';
+		}
+}
+
+// ------------------------------------------------------ Sciana (sciana siatki) --
 typedef struct
 {
 	bool krG[3], krD[3], krL[3], krP[3];
 	bool rLG, rPG, rLD, rPD;
 } Sciana;
 
+// ------------------------------------------------------ Siatka (sciana siatki) --
 typedef struct
 {
 	int n; // ile scian wklejonych
 	Sciana s[6];
 } Siatka;
+
 
 
 void siatka_drukuj(Siatka *s)
@@ -32,10 +52,10 @@ void siatka_drukuj(Siatka *s)
 	// rysuj
 	
 	// wyświetl
-	puts(ekran);
+	puts((char*)(void*)ekran);
 }
 
-bool ok_krawedz(bool *A, bool *B)
+bool ok_krawedz(bool A[], bool B[])
 {
 	return A[0] == B[2] && A[1] == B[1] && A[2] == B[1];
 }
@@ -104,16 +124,64 @@ bool siatka_sprawdz(Siatka *s)
 }
 
 
-void siatka_nanies_sciane(SSiatka *s, int pozycja, int obrot, bool inv)
+// o: 0..3 - obrót, 4..7 - obrót+inwersja
+void siatka_nanies_sciane(SSciana *ss, Sciana *s, int oi)
 {
+	// wyjmij sam obwód
+	bool obwod[16]; int n=0;
+	for (int i=0; i<4; i++) obwod[n++] = ss->pola[0][i];
+	for (int i=0; i<4; i++) obwod[n++] = ss->pola[i][4];
+	for (int i=0; i<4; i++) obwod[n++] = ss->pola[4][4-i];
+	for (int i=0; i<4; i++) obwod[n++] = ss->pola[4-i][0];
+
+	// uwzględnij orientację (obrót+lustro)
+	bool o2 = oi, prosto = true;
+	if (o2 > 3) { o2 -=4; prosto = false; }
 	
+	bool obwod2[16];
+	for (int i=0; i<16; i++)
+		obwod2[i] = prosto ? obwod[(    i +o2*5) % 16]
+		                   : obwod[((16-i)+o2*5) % 16];
+
+	// wstaw zorinetowany obwód do ss
+	s->rLG = obwod2[0];
+	s->krG[0] = obwod[1];
+	s->krG[1] = obwod[2];
+	s->krG[2] = obwod[3];
+	s->rPG = obwod2[4];
+	s->krG[0] = obwod[5];
+	s->krG[1] = obwod[6];
+	s->krG[2] = obwod[7];
+	s->rPD = obwod2[8];
+	s->krG[0] = obwod[9];
+	s->krG[1] = obwod[10];
+	s->krG[2] = obwod[11];
+	s->rLD = obwod2[12];
+	s->krG[0] = obwod[13];
+	s->krG[1] = obwod[14];
+	s->krG[2] = obwod[15];
 }
 
-
+#ifndef TEST
 int main()
 {
-	// wczytaj
+	Siatka s;
+	SSciana ss[6];
+
+	// wczytaj 
+	for (int i=0; i<6; i++)
+		ssciana_wczytaj(&ss[i]);
+	
 	// kombinuj
+	siatka_nanies_sciane(&ss[0], &s.s[0], 0);
 }
 
+
+#else
+int main()
+{
+
+	
+}
+#endif
 
