@@ -16,7 +16,7 @@ void ssciana_wczytaj(SSciana *ss)
 		for (int x=0; x<5; x++)
 		{
 			char ch;
-			do {ch = getchar();} while (ch != '.' || ch != '@');
+			do {ch = getchar();} while (ch != '.' && ch != '@');
 			ss->pola[y][x] = ch=='@';
 		}
 }
@@ -42,7 +42,7 @@ void siatka_drukuj(Siatka *s)
 	char ekran[23][18];
 
 	// czyść
-	for (int y=0; y<18; y++)
+	for (int y=0; y<23; y++)
 	{
 		ekran[y][17] = '\n';
 		for (int x=0; x<22; x++)
@@ -50,6 +50,26 @@ void siatka_drukuj(Siatka *s)
 	}
 
 	// rysuj
+	int dx[] = {6, 0, 6, 12, 6, 6};
+	int dy[] = {0, 6, 6, 6, 12, 18};
+
+	for (int ns=0; ns<s->n; ns++)
+	{
+#		define PIX(y,x,v) ekran[dy[ns] + y][dx[ns] + x] = v?'@':'.'
+		
+		PIX(0, 0, s->s[ns].rLG);
+		PIX(0, 4, s->s[ns].rPG);
+		PIX(4, 0, s->s[ns].rLD);
+		PIX(4, 4, s->s[ns].rPD);
+
+		for (int i=0; i<3; i++)
+		{
+			PIX(0, 1+i, s->s[ns].krG);
+			PIX(4, 1+i, s->s[ns].krD);
+			PIX(1+i, 0, s->s[ns].krL);
+			PIX(1+i, 4, s->s[ns].krP);
+		}
+	}
 	
 	// wyświetl
 	puts((char*)(void*)ekran);
@@ -178,10 +198,43 @@ int main()
 
 
 #else
-int main()
-{
+#include <stdlib.h> // atoi()
 
-	
+void test_wczytaj_orientuj_printuj(int oi)
+{
+	for (int i=0; i<6; i++)
+	{
+		Siatka s;
+		SSciana ss;
+		
+		ssciana_wczytaj(&ss);
+		siatka_nanies_sciane(&ss, &s.s[i], oi);
+	}
+}
+
+int main(int argc, char **argv)
+{
+	switch (atoi(argv[1]))
+	{
+		case 0: test_wczytaj_orientuj_printuj(atoi(argv[2])); break;
+	}
+	return 0;
 }
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
