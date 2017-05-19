@@ -39,6 +39,23 @@ void ssciana_wczytaj(SSciana *ss)
 		}
 }
 
+// wczytuje standardowy plik konfiguracji ścianek
+// zwraca tablicę 6 wskaźników do Sciana
+SSciana ** ssciana_wczytaj6()
+{
+	static SSciana surowa[6];
+	static SSciana *sstab[6];
+
+	// wczytaj 
+	for (int i=0; i<6; i++)
+	{
+		sstab[i] = &surowa[i];
+		ssciana_wczytaj(sstab[i]);
+	}
+
+	return sstab;
+}
+
 // ------------------------------------------------------ Sciana (sciana siatki) --
 /*
      +---+--------+---+
@@ -277,18 +294,13 @@ void zbadaj_poziom(Siatka *s, SSciana **ss, int ssn)
 int main()
 {
 	Siatka s; s.n = 0;
-	SSciana surowa[6];
+	SSciana **sstab = ssciana_wczytaj6(); // zaczytaj
 
-	// wczytaj 
-	for (int i=0; i<6; i++)
-		ssciana_wczytaj(&surowa[i]);
-	
 	// pierwsza na stałe
-	siatka_nanies(&s, &surowa[0], 0);
+	siatka_nanies(&s, sstab[0], 0);
 
 	// kombinuj
-	SSciana *ss[5] = {&surowa[1], &surowa[2], &surowa[3], &surowa[4], &surowa[5]};
-	zbadaj_poziom(&s, ss, 5);
+	zbadaj_poziom(&s, sstab+1, 5);
 }
 
 
@@ -298,14 +310,10 @@ int main()
 int test_wczytaj_orientuj_printuj(int oi)
 {
 	Siatka s; s.n = 0;
+	SSciana **sstab = ssciana_wczytaj6();
 
 	for (int i=0; i<6; i++)
-	{
-		SSciana ss;
-		
-		ssciana_wczytaj(&ss);
-		siatka_nanies(&s, &ss, oi);
-	}
+		siatka_nanies(&s, sstab[i], oi);
 
 	siatka_drukuj(&s);
 	return 0;
@@ -314,14 +322,10 @@ int test_wczytaj_orientuj_printuj(int oi)
 int test_proste_sprawdzenie()
 {
 	Siatka s; s.n=0;
-	SSciana surowa[6];
+	SSciana **sstab = ssciana_wczytaj6();
 
-	// wczytaj 
-	for (int i=0; i<6; i++)
-		ssciana_wczytaj(&surowa[i]);
-	
-	siatka_nanies(&s, &surowa[0], 0);
-	siatka_nanies(&s, &surowa[2], 1);
+	siatka_nanies(&s, sstab[0], 0);
+	siatka_nanies(&s, sstab[2], 1);
 
 	siatka_drukuj(&s);
 	bool ok = siatka_sprawdz(&s);
