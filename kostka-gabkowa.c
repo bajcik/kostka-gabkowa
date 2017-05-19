@@ -1,4 +1,5 @@
-/* Krzysztof.Garus@gmail.com
+/* Krzysztof.Garus
+ * garus.krzysztof@gmail.com
  * 2017.05.19
 */
 
