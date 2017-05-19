@@ -4,9 +4,6 @@ siatka_naloz(s, ss) n++
 siatka_zdejmij(s)   n--
 
 ##
-Siatka::s -> "sciana"
-
-##
 SSciana [] ssciana_wczytaj6
 
 

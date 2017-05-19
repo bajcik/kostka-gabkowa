@@ -113,7 +113,7 @@ void sciana_nanies_surowa(Sciana *s, SSciana *ss, int oi)
 typedef struct
 {
 	int n; // ile scian wklejonych
-	Sciana s[6];
+	Sciana sciana[6];
 } Siatka;
 
 
@@ -138,17 +138,17 @@ void siatka_drukuj(Siatka *s)
 	{
 #		define PIX(y,x,v) ekran[dy[ns] + y][dx[ns] + x] = v ? '@':'.'
 		
-		PIX(0, 0, s->s[ns].rLG);
-		PIX(0, 4, s->s[ns].rPG);
-		PIX(4, 0, s->s[ns].rLD);
-		PIX(4, 4, s->s[ns].rPD);
+		PIX(0, 0, s->sciana[ns].rLG);
+		PIX(0, 4, s->sciana[ns].rPG);
+		PIX(4, 0, s->sciana[ns].rLD);
+		PIX(4, 4, s->sciana[ns].rPD);
 
 		for (int i=0; i<3; i++)
 		{
-			PIX(0, 1+i, s->s[ns].krG[i]);
-			PIX(4, 3-i, s->s[ns].krD[i]);
-			PIX(3-i, 0, s->s[ns].krL[i]);
-			PIX(1+i, 4, s->s[ns].krP[i]);
+			PIX(0, 1+i, s->sciana[ns].krG[i]);
+			PIX(4, 3-i, s->sciana[ns].krD[i]);
+			PIX(3-i, 0, s->sciana[ns].krL[i]);
+			PIX(1+i, 4, s->sciana[ns].krP[i]);
 		}
 
 		for (int i=1; i<=3; i++)
@@ -172,64 +172,64 @@ bool siatka_sprawdz(Siatka *s)
 {
 	if (s->n == 1) return true;
 
-	bool r = ok_krawedz(s->s[0].krD, s->s[1].krG);
+	bool r = ok_krawedz(s->sciana[0].krD, s->sciana[1].krG);
 	if (!r) return false;
-	//if (!ok_krawedz(s->s[0].krD, s->s[1].krG)) return false;
+	//if (!ok_krawedz(s->sciana[0].krD, s->sciana[1].krG)) return false;
 	
 	if (s->n == 2) return true;
 	
-	if (!ok_krawedz(s->s[0].krL, s->s[2].krG)) return false;
-	if (!ok_krawedz(s->s[1].krL, s->s[2].krP)) return false;
+	if (!ok_krawedz(s->sciana[0].krL, s->sciana[2].krG)) return false;
+	if (!ok_krawedz(s->sciana[1].krL, s->sciana[2].krP)) return false;
 
-	if (s->s[0].rLD
-	  + s->s[1].rLG
-	  + s->s[2].rPG != 1) return false;
+	if (s->sciana[0].rLD
+	  + s->sciana[1].rLG
+	  + s->sciana[2].rPG != 1) return false;
 	
 	if (s->n == 3) return true;
 	
-	if (!ok_krawedz(s->s[0].krP, s->s[3].krG)) return false;
-	if (!ok_krawedz(s->s[1].krP, s->s[3].krL)) return false;
+	if (!ok_krawedz(s->sciana[0].krP, s->sciana[3].krG)) return false;
+	if (!ok_krawedz(s->sciana[1].krP, s->sciana[3].krL)) return false;
 	
-	if (s->s[0].rPD
-	  + s->s[1].rPG
-	  + s->s[3].rLG != 1) return false;
+	if (s->sciana[0].rPD
+	  + s->sciana[1].rPG
+	  + s->sciana[3].rLG != 1) return false;
 	
 	if (s->n == 4) return true;
 
-	if (!ok_krawedz(s->s[1].krD, s->s[4].krG)) return false;
-	if (!ok_krawedz(s->s[2].krD, s->s[4].krL)) return false;
-	if (!ok_krawedz(s->s[3].krD, s->s[4].krP)) return false;
+	if (!ok_krawedz(s->sciana[1].krD, s->sciana[4].krG)) return false;
+	if (!ok_krawedz(s->sciana[2].krD, s->sciana[4].krL)) return false;
+	if (!ok_krawedz(s->sciana[3].krD, s->sciana[4].krP)) return false;
 	
-	if (s->s[1].rLD
-	  + s->s[2].rPD
-	  + s->s[4].rLG != 1) return false;
+	if (s->sciana[1].rLD
+	  + s->sciana[2].rPD
+	  + s->sciana[4].rLG != 1) return false;
 	
-	if (s->s[2].rPD
-	  + s->s[3].rLD
-	  + s->s[4].rPG != 1) return false;
+	if (s->sciana[2].rPD
+	  + s->sciana[3].rLD
+	  + s->sciana[4].rPG != 1) return false;
 	
 	if (s->n == 5) return true;
 
-	if (!ok_krawedz(s->s[2].krL, s->s[5].krL)) return false;
-	if (!ok_krawedz(s->s[4].krD, s->s[5].krG)) return false;
-	if (!ok_krawedz(s->s[3].krP, s->s[5].krP)) return false;
-	if (!ok_krawedz(s->s[0].krG, s->s[5].krD)) return false;
+	if (!ok_krawedz(s->sciana[2].krL, s->sciana[5].krL)) return false;
+	if (!ok_krawedz(s->sciana[4].krD, s->sciana[5].krG)) return false;
+	if (!ok_krawedz(s->sciana[3].krP, s->sciana[5].krP)) return false;
+	if (!ok_krawedz(s->sciana[0].krG, s->sciana[5].krD)) return false;
 	
-	if (s->s[2].rLD
-	  + s->s[4].rLD
-	  + s->s[5].rLG != 1) return false;
+	if (s->sciana[2].rLD
+	  + s->sciana[4].rLD
+	  + s->sciana[5].rLG != 1) return false;
 	
-	if (s->s[4].rPD
-	  + s->s[3].rPD
-	  + s->s[5].rPG != 1) return false;
+	if (s->sciana[4].rPD
+	  + s->sciana[3].rPD
+	  + s->sciana[5].rPG != 1) return false;
 	
-	if (s->s[0].rLG
-	  + s->s[2].rLG
-	  + s->s[5].rLD != 1) return false;
+	if (s->sciana[0].rLG
+	  + s->sciana[2].rLG
+	  + s->sciana[5].rLD != 1) return false;
 	
-	if (s->s[0].rPG
-	  + s->s[3].rPG
-	  + s->s[5].rPD != 1) return false;
+	if (s->sciana[0].rPG
+	  + s->sciana[3].rPG
+	  + s->sciana[5].rPD != 1) return false;
 	
 	return true;
 }
@@ -252,7 +252,7 @@ void zbadaj_poziom(Siatka *s, SSciana **ss, int ssn)
 
 		for (int io=0; io<8; io++) // wszystkie orientacje
 		{
-			sciana_nanies_surowa(&s->s[s->n], ss[is], io);
+			sciana_nanies_surowa(&s->sciana[s->n], ss[is], io);
 			s->n++;
 			if (siatka_sprawdz(s))
 			{
@@ -276,7 +276,7 @@ int main()
 		ssciana_wczytaj(&surowa[i]);
 	
 	// pierwsza na stałe
-	sciana_nanies_surowa(&s.s[0], &surowa[0], 0);
+	sciana_nanies_surowa(&s.sciana[0], &surowa[0], 0);
 	s.n = 1;
 
 	// kombinuj
@@ -297,7 +297,7 @@ int test_wczytaj_orientuj_printuj(int oi)
 		SSciana ss;
 		
 		ssciana_wczytaj(&ss);
-		sciana_nanies_surowa(&s.s[i], &ss, oi);
+		sciana_nanies_surowa(&s.sciana[i], &ss, oi);
 	}
 	s.n = 6;
 
@@ -314,8 +314,8 @@ int test_proste_sprawdzenie()
 	for (int i=0; i<6; i++)
 		ssciana_wczytaj(&surowa[i]);
 	
-	sciana_nanies_surowa(&s.s[0], &surowa[0], 0);
-	sciana_nanies_surowa(&s.s[1], &surowa[2], 1);
+	sciana_nanies_surowa(&s.sciana[0], &surowa[0], 0);
+	sciana_nanies_surowa(&s.sciana[1], &surowa[2], 1);
 	s.n = 2;
 
 	siatka_drukuj(&s);
