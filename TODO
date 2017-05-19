@@ -1,9 +1,5 @@
 
 ##
-siatka_naloz(s, ss) n++
-siatka_zdejmij(s)   n--
-
-##
 SSciana [] ssciana_wczytaj6
 
 

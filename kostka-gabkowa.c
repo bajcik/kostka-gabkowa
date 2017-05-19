@@ -116,7 +116,16 @@ typedef struct
 	Sciana sciana[6];
 } Siatka;
 
+void siatka_nanies(Siatka *s, SSciana *ss, int oi)
+{
+	sciana_nanies_surowa(&s->sciana[s->n], ss, oi);
+	s->n++;
+}
 
+void siatka_zdejmij(Siatka *s)
+{
+	s->n--;
+}
 
 void siatka_drukuj(Siatka *s)
 {
@@ -252,14 +261,13 @@ void zbadaj_poziom(Siatka *s, SSciana **ss, int ssn)
 
 		for (int io=0; io<8; io++) // wszystkie orientacje
 		{
-			sciana_nanies_surowa(&s->sciana[s->n], ss[is], io);
-			s->n++;
+			siatka_nanies(s, ss[is], io);
 			if (siatka_sprawdz(s))
 			{
 				if (s->n == 6) siatka_drukuj(s);
 				else           zbadaj_poziom(s, ss2, ssn-1);
 			}
-			s->n--;
+			siatka_zdejmij(s);
 		}
 	}
 }
@@ -268,7 +276,7 @@ void zbadaj_poziom(Siatka *s, SSciana **ss, int ssn)
 #ifndef TEST
 int main()
 {
-	Siatka s;
+	Siatka s; s.n = 0;
 	SSciana surowa[6];
 
 	// wczytaj 
@@ -276,8 +284,7 @@ int main()
 		ssciana_wczytaj(&surowa[i]);
 	
 	// pierwsza na stałe
-	sciana_nanies_surowa(&s.sciana[0], &surowa[0], 0);
-	s.n = 1;
+	siatka_nanies(&s, &surowa[0], 0);
 
 	// kombinuj
 	SSciana *ss[5] = {&surowa[1], &surowa[2], &surowa[3], &surowa[4], &surowa[5]};
@@ -290,16 +297,15 @@ int main()
 
 int test_wczytaj_orientuj_printuj(int oi)
 {
-	Siatka s;
+	Siatka s; s.n = 0;
 
 	for (int i=0; i<6; i++)
 	{
 		SSciana ss;
 		
 		ssciana_wczytaj(&ss);
-		sciana_nanies_surowa(&s.sciana[i], &ss, oi);
+		siatka_nanies(&s, &ss, oi);
 	}
-	s.n = 6;
 
 	siatka_drukuj(&s);
 	return 0;
@@ -307,16 +313,15 @@ int test_wczytaj_orientuj_printuj(int oi)
 
 int test_proste_sprawdzenie()
 {
-	Siatka s;
+	Siatka s; s.n=0;
 	SSciana surowa[6];
 
 	// wczytaj 
 	for (int i=0; i<6; i++)
 		ssciana_wczytaj(&surowa[i]);
 	
-	sciana_nanies_surowa(&s.sciana[0], &surowa[0], 0);
-	sciana_nanies_surowa(&s.sciana[1], &surowa[2], 1);
-	s.n = 2;
+	siatka_nanies(&s, &surowa[0], 0);
+	siatka_nanies(&s, &surowa[2], 1);
 
 	siatka_drukuj(&s);
 	bool ok = siatka_sprawdz(&s);
